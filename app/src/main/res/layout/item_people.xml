@@ -5,13 +5,13 @@
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
     android:gravity="center_vertical"
+    android:background="@color/bg_primary"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:background="@color/bg_secondary">
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/catalog"
@@ -27,7 +27,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="@color/bg_primary"
+        android:background="?android:selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 

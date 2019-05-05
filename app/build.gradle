@@ -65,4 +65,6 @@ dependencies {
     // lots of UI
     // 左滑样式
     implementation 'com.r0adkll:slidableactivity:2.0.6'
+
+    implementation 'com.getbase:floatingactionbutton:1.10.1'
 }
