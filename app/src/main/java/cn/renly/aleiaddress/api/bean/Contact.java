@@ -6,6 +6,10 @@ public class Contact {
     private Long id;
     private Long photoId;
 
+    public Contact() {
+        super();
+    }
+
     public Contact(String name, String phoneNum, Long id, Long photoId) {
         this.name = name;
         this.phoneNum = phoneNum;

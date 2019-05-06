@@ -69,5 +69,16 @@
             app:fab_title="删除"
             app:fab_colorPressed="@color/orange_light"/>
 
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/action_d"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_cloud_upload_black_24dp"
+            android:paddingBottom="@dimen/dimen_16"
+            android:tint="@color/blue_light"
+            app:fab_colorNormal="@color/white"
+            app:fab_title="上传"
+            app:fab_colorPressed="@color/orange_light"/>
+
     </com.getbase.floatingactionbutton.FloatingActionsMenu>
 </RelativeLayout>
