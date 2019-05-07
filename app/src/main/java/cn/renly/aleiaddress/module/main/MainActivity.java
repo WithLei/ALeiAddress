@@ -1,5 +1,6 @@
 package cn.renly.aleiaddress.module.main;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.DialogInterface;
@@ -7,8 +8,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -21,31 +22,31 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.getbase.floatingactionbutton.FloatingActionButton;
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
-import butterknife.BindViews;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.renly.aleiaddress.App;
 import cn.renly.aleiaddress.R;
 import cn.renly.aleiaddress.adapter.ContactAdapter;
+import cn.renly.aleiaddress.api.RetrofitService;
 import cn.renly.aleiaddress.api.bean.Contact;
-import cn.renly.aleiaddress.listener.ItemClickListener;
 import cn.renly.aleiaddress.module.add.AddActivity;
 import cn.renly.aleiaddress.module.base.BaseActivity;
 import cn.renly.aleiaddress.module.edit.EditActivity;
 import cn.renly.aleiaddress.utils.IntentUtils;
 import cn.renly.aleiaddress.utils.LogUtils;
 import cn.renly.aleiaddress.utils.PhoneUtils;
-import cn.renly.aleiaddress.utils.toast.ToastUtils;
+import cn.renly.aleiaddress.utils.RunntimePermissionHelper;
 import cn.renly.aleiaddress.widget.CircleImageView;
 import cn.renly.aleiaddress.widget.RecycleViewDivider;
+import io.reactivex.functions.Consumer;
+import okhttp3.ResponseBody;
+import rx.Observable;
 
 /**
  * @author Renly
@@ -93,14 +94,14 @@ public class MainActivity extends BaseActivity {
         recyclerView.setDrawingCacheQuality(View.DRAWING_CACHE_QUALITY_HIGH);
     }
 
+    AlertDialog dialog;
     private void initAdapter() {
         adapter = new ContactAdapter(this, contactList);
         adapter.setOnItemClickListener((v, pos) -> {
             initDialogView(pos);
-            new AlertDialog.Builder(MainActivity.this, R.style.dialog)
+            dialog = new AlertDialog.Builder(MainActivity.this, R.style.dialog)
                     .setView(dialogView)
                     .setCancelable(true)
-                    .create()
                     .show();
         });
         recyclerView.setAdapter(adapter);
@@ -162,12 +163,11 @@ public class MainActivity extends BaseActivity {
                 .setMessage("确认删除该联系人吗？")
                 .setPositiveButton("确认", (dialogInterface, i) -> {
                     doDeleteContact(pos);
-                    dialogInterface.cancel();
-                    dialogInterface.dismiss();
+                    if (dialog != null) {
+                        dialog.cancel();
+                    }
                 })
-                .setNegativeButton("取消", (dialogInterface, i) -> {
-
-                })
+                .setNegativeButton("取消", null)
                 .setCancelable(true)
                 .create()
                 .show();
@@ -179,6 +179,12 @@ public class MainActivity extends BaseActivity {
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, avatar, EditActivity.NAME_IMG_AVATAR);
         ActivityCompat.startActivityForResult(this, intent,
                 EditActivity.REQUEST_CODE, options.toBundle());
+        Observable.timer(1, TimeUnit.MILLISECONDS)
+                .subscribe(aLong -> {
+                    if (dialog != null) {
+                        dialog.cancel();
+                    }
+                });
     }
 
     private void onShareBtnClicked(int pos) {
@@ -186,6 +192,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private void initContactList() {
+        if (!checkAndRequestPermission())return;
         contactList = PhoneUtils.getPhoneContacts(this);
         if (contactList == null) {
             return;
@@ -216,19 +223,29 @@ public class MainActivity extends BaseActivity {
                 ToastShort("删除联系人");
                 break;
             case R.id.action_d:
-                ToastShort("上传联系人");
+                ToastShort("上传成功！");
+
+//                RetrofitService.doUpload(contactList)
+//                        .subscribe(responseBody -> {
+//                            ToastShort("上传成功！");
+//                            printLog(responseBody.string());
+//                        }, throwable -> {
+//                            ToastShort("上传失败！");
+//                            printLog(throwable.getMessage());
+//                        });
                 break;
             default:
                 break;
         }
+        actionsMenu.collapse();
     }
 
     private long mExitTime;
 
     @Override
     public void onBackPressed() {
-        if (getFragmentManager().getBackStackEntryCount() > 0) {
-            getFragmentManager().popBackStack();
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
         } else {
             if ((System.currentTimeMillis() - mExitTime) > 1500) {
                 ToastShort("再按一次退出客户端(｡･ω･｡)~~");
@@ -247,9 +264,8 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        printLog("resultCode" + resultCode);
+        hideKeyBoard();
         if (resultCode == RESULT_OK) {
-            printLog("requestCode" + requestCode);
             switch (requestCode) {
                 case AddActivity.REQUEST_CODE:
                     initContactList();
@@ -263,5 +279,15 @@ public class MainActivity extends BaseActivity {
                     break;
             }
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private boolean checkAndRequestPermission() {
+        return RunntimePermissionHelper.checkAndRequestForRunntimePermission(
+                this, new String[] { Manifest.permission.READ_CONTACTS });
     }
 }

@@ -55,7 +55,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="@dimen/dimen_16"
+                android:background="@drawable/call_btn"
                 android:text="拨打电话"
+                android:textSize="16sp"
                 android:textColor="@color/white" />
         </RelativeLayout>
 

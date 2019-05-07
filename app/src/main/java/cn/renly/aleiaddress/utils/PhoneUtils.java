@@ -1,6 +1,7 @@
 package cn.renly.aleiaddress.utils;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -15,6 +16,7 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.Photo;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -77,15 +79,6 @@ public class PhoneUtils {
      * @return
      */
     public static List<Contact> getPhoneContacts(final Activity context) {
-        int hasWriteContactsPermission = 0;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            hasWriteContactsPermission = App.getContext().checkSelfPermission(Manifest.permission.WRITE_CONTACTS);
-        }
-        if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(context, new String[]{Manifest.permission.WRITE_CONTACTS},
-                    REQUEST_CODE_ASK_PERMISSIONS);
-            return null;
-        }
         List<Contact> contactList = new ArrayList<>();
         ContentResolver resolver = App.getContext().getContentResolver();
 

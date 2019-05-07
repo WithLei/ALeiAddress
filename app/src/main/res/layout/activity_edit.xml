@@ -75,6 +75,7 @@
             android:textStyle="bold"
             android:gravity="center"
             android:hint="请输入联系人姓名"
+            android:inputType="none"
             tools:text="用户名" />
 
         <View

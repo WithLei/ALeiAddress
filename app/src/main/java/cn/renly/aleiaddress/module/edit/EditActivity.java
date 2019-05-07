@@ -76,6 +76,7 @@ public class EditActivity extends BaseActivity {
             avatar.setImageBitmap(contactPhoto);
         }
         name.setText(contact.getName());
+        name.setSelection(contact.getName().length());
         phone.setText(contact.getPhoneNum());
     }
 
